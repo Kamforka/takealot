@@ -18,7 +18,7 @@ CSV_NAME_TEMPLATE = '{:%Y-%m-%d}_deals.csv'
 START_HOUR = 9 # 09:00
 
 # data fields for hourly scraping
-HOURLY_FIELDS = ['price_offer', 'stock_remaining', 'warehouses']
+HOURLY_FIELDNAMES = ['price_offer', 'stock_remaining', 'warehouses']
 
 class CsvWriterPipeline(object):
     # def __init__(self):
