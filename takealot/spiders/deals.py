@@ -19,16 +19,6 @@ class DealsSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        """
-        -Product Name
-        -Product URL (both mobile and Desktop URL)
-        -Product Category
-        -Seller Name
-        -'Normal' Selling Price
-        -Offer Price
-        -Number of stock remaining
-        -Which warehouses hold stock
-        """
         body = json.loads(response.body.decode('utf-8'))
         num_found = body['results']['num_found']
         products = body['results']['productlines']
