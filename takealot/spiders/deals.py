@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
+import requests
+
 import scrapy
 
 from takealot.items import TakealotItem
@@ -17,6 +19,7 @@ def get_daily_id():
 
 
 class DealsSpider(scrapy.Spider):
+    """Spider to crawl daily deals from takealot.com/deals"""
     name = 'deals'
     rows = ITEM_ROWS
     daily_id = get_daily_id()
@@ -35,6 +38,7 @@ class DealsSpider(scrapy.Spider):
     }
 
     def parse(self, response):
+        """Parse daily deal product."""
         body = json.loads(response.body.decode('utf-8'))
         num_found = body['results']['num_found']
         products = body['results']['productlines']
