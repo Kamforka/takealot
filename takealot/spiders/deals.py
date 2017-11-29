@@ -56,4 +56,6 @@ class DealsSpider(scrapy.Spider):
 
         offset = int(body['params']['start'][0]) + ITEM_ROWS
         if offset < num_found:
-            yield response.follow(self.api_base.format(offset=offset))
+            yield response.follow(self.daily_url.format(rows=self.rows,
+                                                        offset=offset,
+                                                        id=self.daily_id))
