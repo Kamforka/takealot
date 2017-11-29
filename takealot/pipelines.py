@@ -20,11 +20,11 @@ START_HOUR = 9 # 09:00
 # data fields for hourly scraping
 HOURLY_FIELDNAMES = ['price_offer', 'stock_remaining', 'warehouses']
 
-    # def __init__(self):
-    #     self.file = None
-    #     self.writer = None
-    #     self.items = []
 class DailyDealsPipeline(object):
+    def __init__(self):
+        self.file = None
+        self.writer = None
+        self.items = []
 
     def open_spider(self, spider):
         csv_path = CSV_NAME_TEMPLATE.format(datetime.now())
