@@ -29,7 +29,7 @@ class DailyDealsPipeline(object):
     def open_spider(self, spider):
         csv_path = CSV_NAME_TEMPLATE.format(datetime.now())
 
-        self.items = []
+        # self.items = []
         if os.path.exists(csv_path):
             # when a file already exists with the generated name
             # it means that an hourly scraping is going on
@@ -59,12 +59,11 @@ class DailyDealsPipeline(object):
             for new_item in self.items:
                 if new_item['id'] == item['id']:
                     # update item
-                    for (f1, f2) in zip(hourly_fieldnames, HOURLY_FIELDS):
+                    for (f1, f2) in zip(hourly_fieldnames, HOURLY_FIELDNAMES):
                         new_item[f1] = item[f2]
         else:
             # initial scrape
             self.writer.writerow(item)
-        # self.writer.writerow(item)
         return item
 
     def extend_item_fields(self, old_items):
@@ -72,11 +71,13 @@ class DailyDealsPipeline(object):
         new_items = [dict(old_item, **hourly_fields) for old_item in old_items]
         return new_items
 
+    def create_hourly_fields(self):
+        fieldnames = self.create_hourly_fieldnames()
+        return {fieldname: None for fieldname in fieldnames}
+        # return {'{}_1'.format(field): None for field in HOURLY_FIELDS}
 
     @staticmethod
     def create_hourly_fieldnames():
-        return ['{}_1'.format(field) for field in HOURLY_FIELDS]
-
-    @staticmethod
-    def create_hourly_fields():
-        return {'{}_1'.format(field): None for field in HOURLY_FIELDS}
+        hour = datetime.now().hour
+        iteration = hour - START_HOUR
+        return ['{}_{}'.format(field, iteration) for field in HOURLY_FIELDNAMES]
