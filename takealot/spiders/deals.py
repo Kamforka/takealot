@@ -7,6 +7,15 @@ from takealot.items import TakealotItem
 ITEM_ROWS = 100
 MOBILE_URL_TEMPLATE = 'https://m.takealot.com/#product?id={id}'
 
+def get_daily_id():
+    """Retrieve daily deal id from takealot api."""
+    promo_url = 'https://api.takealot.com/rest/v-1-5-2/promotions'
+    response = requests.get(promo_url)
+    for resp in response.json()['response']:
+        if resp['name'] == 'Daily Deal':
+            return resp['id']
+
+
 class DealsSpider(scrapy.Spider):
     name = 'deals'
     daily_url = ('https://api.takealot.com/rest/v-1-5-2/productlines/search'
