@@ -9,9 +9,9 @@ MOBILE_URL_TEMPLATE = 'https://m.takealot.com/#product?id={id}'
 
 class DealsSpider(scrapy.Spider):
     name = 'deals'
-    api_base = ('https://api.takealot.com/rest/v-1-5-2/productlines/search'
-                '?rows=100&start={offset}&backend=arj-fbye-zz-fla-fcenax'
-                '&filter=Promotions:53727&sort=BestSelling%20Descending'
+    daily_url = ('https://api.takealot.com/rest/v-1-5-2/productlines/search'
+                '?rows={rows}&start={offset}&backend=arj-fbye-zz-fla-fcenax'
+                '&filter=Promotions:{id}&sort=BestSelling%20Descending'
                 '&detail=mlisting&filter=Available:true')
     allowed_domains = ['api.takealot.com']
     start_urls = [
