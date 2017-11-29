@@ -28,6 +28,11 @@ class DealsSpider(scrapy.Spider):
     start_urls = [
         daily_url.format(rows=rows, offset=0, id=daily_id),
     ]
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'takealot.pipelines.DailyDealsPipeline': 300,
+        }
+    }
 
     def parse(self, response):
         body = json.loads(response.body.decode('utf-8'))
