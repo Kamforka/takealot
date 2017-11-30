@@ -12,7 +12,7 @@ class TakealotItem(scrapy.Item):
     # define the fields for your item here like:
     id = scrapy.Field()
     product_name = scrapy.Field()
-    # product_category = scrapy.Field()
+    product_category = scrapy.Field()
     url_desktop = scrapy.Field()
     url_mobile = scrapy.Field()
     seller_name = scrapy.Field()
