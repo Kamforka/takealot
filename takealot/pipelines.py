@@ -22,11 +22,13 @@ HOURLY_FIELDNAMES = ['price_offer', 'stock_remaining', 'warehouses']
 
 class DailyDealsPipeline(object):
     def __init__(self):
+        """Daily Deal Pipeline constructor."""
         self.file = None
         self.writer = None
         self.items = []
 
     def open_spider(self, spider):
+        """Method to handle spider opening."""
         csv_path = CSV_NAME_TEMPLATE.format(datetime.now())
 
         # self.items = []
@@ -47,12 +49,14 @@ class DailyDealsPipeline(object):
         self.writer.writeheader()
 
     def close_spider(self, spider):
+        """Method to handle spider closing."""
         if self.items:
             self.writer.writerows(self.items)
 
         self.file.close()
 
     def process_item(self, item, spider):
+        """Method to handle item processing."""
         if self.items:
             hourly_fieldnames = self.create_hourly_fieldnames()
             # hourly scrape
@@ -61,23 +65,26 @@ class DailyDealsPipeline(object):
                     # update item
                     for (f1, f2) in zip(hourly_fieldnames, HOURLY_FIELDNAMES):
                         new_item[f1] = item[f2]
+
         else:
             # initial scrape
             self.writer.writerow(item)
         return item
 
     def extend_item_fields(self, old_items):
+        """Extend items with new fields for the hourly scrape."""
         hourly_fields = self.create_hourly_fields()
         new_items = [dict(old_item, **hourly_fields) for old_item in old_items]
         return new_items
 
     def create_hourly_fields(self):
+        """Create empty fields for the hourly data."""
         fieldnames = self.create_hourly_fieldnames()
         return {fieldname: None for fieldname in fieldnames}
-        # return {'{}_1'.format(field): None for field in HOURLY_FIELDS}
 
     @staticmethod
     def create_hourly_fieldnames():
+        """Create list of fieldnames for the hourly data."""
         hour = datetime.now().hour
         iteration = hour - START_HOUR
         return ['{}_{}'.format(field, iteration) for field in HOURLY_FIELDNAMES]
