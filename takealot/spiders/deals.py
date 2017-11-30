@@ -51,27 +51,41 @@ class DealsSpider(scrapy.Spider):
 
     def parse(self, response):
         """Parse daily deal product."""
-        body = json.loads(response.body.decode('utf-8'))
+        body = self.get_response_body(response)
         num_found = body['results']['num_found']
         products = body['results']['productlines']
 
         for product in products:
             item = TakealotItem()
-            item['id'] = product['id']
-            item['product_name'] = product['title']
-            item['url_desktop'] = product['uri']
-            item['url_mobile'] = MOBILE_URL_TEMPLATE.format(id=product['id'])
-            # item['product_category'] = ''
             item['seller_name'] = product['seller_name']
-            item['price_normal'] = product['old_selling_price'] / 100.
-            item['price_offer'] = product['selling_price'] / 100.
-            item['stock_remaining'] = product['stock_on_hand']
-            item['warehouses'] = product['shipping_information']['stock_warehouses']
 
-            yield item
+            yield response.follow(API_PRODUCT_URL.format(id=product['id']),
+                                  callback=self.parse_item,
+                                  meta={'item': item})
 
-        offset = int(body['params']['start'][0]) + ITEM_ROWS
+        offset = int(body['params']['start'][0]) + self.rows
         if offset < num_found:
-            yield response.follow(self.daily_url.format(rows=self.rows,
-                                                        offset=offset,
-                                                        id=self.daily_id))
+            yield response.follow(API_DAILY_DEALS_URL.format(rows=self.rows,
+                                                             offset=offset,
+                                                             id=self.daily_id))
+
+    def parse_item(self, response):
+        """Parse additional properties from product page."""
+        body = self.get_response_body(response)
+        product = body['response']
+
+        item = response.meta['item']
+
+        item['id'] = product['id']
+        item['product_name'] = product['title']
+        item['url_desktop'] = product['uri']
+        item['url_mobile'] = MOBILE_ITEM_URL_TEMPLATE.format(id=product['id'])
+        item['price_normal'] = product['old_selling_price'] / 100.
+        item['price_offer'] = product['selling_price'] / 100.
+        item['stock_remaining'] = product['stock_on_hand']
+        item['warehouses'] = product['shipping_information']['stock_warehouses']
+
+        categories = product['categories']
+        item['product_category'] = [category['name'] for category in categories]
+
+        yield item
