@@ -19,8 +19,8 @@ SPLASH_URL = 'http://localhost:8050/'
 LOG_LEVEL = 'INFO'
 
 FEED_EXPORT_FIELDS = [
-    'id', 'product_name', 'url_desktop', 'url_mobile', 'seller_name',
-    'price_normal', 'price_offer', 'stock_remaining', 'warehouses',
+    'id', 'product_name', 'product_category', 'url_desktop', 'url_mobile',
+    'seller_name', 'price_normal', 'price_offer', 'stock_remaining', 'warehouses',
 ]
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'takealot (+http://www.yourdomain.com)'
