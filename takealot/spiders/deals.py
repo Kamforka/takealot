@@ -30,6 +30,7 @@ class DealsSpider(scrapy.Spider):
     name = 'deals'
     allowed_domains = ['api.takealot.com']
     custom_settings = {
+        'FEED_EXPORT_FIELDS': ['id', 'product_name'],
         'ITEM_PIPELINES': {
             'takealot.pipelines.DailyDealsPipeline': 300,
         }
