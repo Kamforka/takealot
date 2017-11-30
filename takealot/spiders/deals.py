@@ -7,7 +7,6 @@ import scrapy
 
 from takealot.items import TakealotItem
 
-ITEM_ROWS = 100
 API_DAILY_DEALS_URL = ('https://api.takealot.com/rest/v-1-5-2/productlines/search'
                        '?rows={rows}&start={offset}&backend=arj-fbye-zz-fla-fcenax'
                        '&filter=Promotions:{id}&sort=Price%20Descending'
@@ -29,17 +28,25 @@ def get_daily_id():
 class DealsSpider(scrapy.Spider):
     """Spider to crawl daily deals from takealot.com/deals"""
     name = 'deals'
-    rows = ITEM_ROWS
-    daily_id = get_daily_id()
     allowed_domains = ['api.takealot.com']
-    start_urls = [
-        daily_url.format(rows=rows, offset=0, id=daily_id),
-    ]
     custom_settings = {
         'ITEM_PIPELINES': {
             'takealot.pipelines.DailyDealsPipeline': 300,
         }
     }
+
+    def __init__(self, *args, **kwargs):
+        """Constructor."""
+        self.rows = 100
+        self.daily_id = get_daily_id()
+        self.start_urls = [
+            API_DAILY_DEALS_URL.format(rows=self.rows,
+                                       offset=0,
+                                       id=self.daily_id)
+        ]
+
+        super(DealsSpider, self).__init__(*args, **kwargs)
+
 
     def parse(self, response):
         """Parse daily deal product."""
