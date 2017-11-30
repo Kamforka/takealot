@@ -31,10 +31,6 @@ class DealsSpider(scrapy.Spider):
     name = 'deals'
     rows = ITEM_ROWS
     daily_id = get_daily_id()
-    daily_url = ('https://api.takealot.com/rest/v-1-5-2/productlines/search'
-                '?rows={rows}&start={offset}&backend=arj-fbye-zz-fla-fcenax'
-                '&filter=Promotions:{id}&sort=BestSelling%20Descending'
-                '&detail=mlisting&filter=Available:true')
     allowed_domains = ['api.takealot.com']
     start_urls = [
         daily_url.format(rows=rows, offset=0, id=daily_id),
