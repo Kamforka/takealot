@@ -8,7 +8,14 @@ import scrapy
 from takealot.items import TakealotItem
 
 ITEM_ROWS = 100
-MOBILE_URL_TEMPLATE = 'https://m.takealot.com/#product?id={id}'
+API_DAILY_DEALS_URL = ('https://api.takealot.com/rest/v-1-5-2/productlines/search'
+                       '?rows={rows}&start={offset}&backend=arj-fbye-zz-fla-fcenax'
+                       '&filter=Promotions:{id}&sort=Price%20Descending'
+                       '&detail=mlisting&filter=Available:true')
+
+API_PRODUCT_URL = 'https://api.takealot.com/rest/v-1-5-2/productline/{id}'
+
+MOBILE_ITEM_URL_TEMPLATE = 'https://m.takealot.com/#product?id={id}'
 
 def get_daily_id():
     """Retrieve daily deal id from takealot api."""
