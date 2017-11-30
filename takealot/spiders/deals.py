@@ -89,3 +89,8 @@ class DealsSpider(scrapy.Spider):
         item['product_category'] = [category['name'] for category in categories]
 
         yield item
+
+    @staticmethod
+    def get_response_body(response, encoding='utf-8'):
+        """Retrieve body dictionary from `Response` object."""
+        return json.loads(response.body.decode(encoding))
