@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Takealot daily deals item scraper."""
 import json
 import requests
 
