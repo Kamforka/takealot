@@ -17,6 +17,7 @@ class TakealotItem(scrapy.Item):
     url_desktop = scrapy.Field()
     url_mobile = scrapy.Field()
     seller_name = scrapy.Field()
+    seller_url = scrapy.Field()
     price_normal = scrapy.Field()
     price_offer = scrapy.Field()
     stock_remaining = scrapy.Field()
