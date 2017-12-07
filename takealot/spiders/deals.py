@@ -44,6 +44,15 @@ class DealsSpider(scrapy.Spider):
         self.last_scrape = kwargs.get('last', False)
         # start hour of the daily scrape
         self.start_hour = int(kwargs.get('start_hour', 7))
+
+        # fields to be scraped during hourly scraping
+        self.hourly_fields = ['stock_remaining']
+
+        # fields to be exported
+        self.export_fields = [
+            'id', 'date', 'product_name', 'product_category', 'url_desktop', 'url_mobile',
+            'seller_name', 'price_normal', 'price_offer', 'warehouses', 'stock_remaining',
+        ]
         self.start_urls = [
             API_DAILY_DEALS_URL.format(rows=self.rows,
                                        offset=0,
