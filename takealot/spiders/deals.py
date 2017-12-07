@@ -70,12 +70,12 @@ class DealsSpider(scrapy.Spider):
         products = jsonresponse['results']['productlines']
 
         for product in products:
-            item = TakealotItem()
-            item['seller_name'] = product['seller_name']
-
+            # the api response of the product doesn't have the seller_name field
+            # so it must be recorded here and passed as meta of the product request
+            seller_name = product['seller_name']
             yield response.follow(API_PRODUCT_URL.format(id=product['id']),
                                   callback=self.parse_item,
-                                  meta={'item': item})
+                                  meta={'seller_name': seller_name})
 
         offset = int(jsonresponse['params']['start'][0]) + self.rows
         if offset < num_found:
