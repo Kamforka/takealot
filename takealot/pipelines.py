@@ -73,9 +73,12 @@ class DailyDealsPipeline(object):
         fieldnames = self.create_hourly_fieldnames()
         return {fieldname: None for fieldname in fieldnames}
 
-    @staticmethod
-    def create_hourly_fieldnames():
+    def create_ext_hourly_fieldnames(self):
         """Create list of fieldnames for the hourly data."""
-        hour = datetime.now().hour
-        iteration = hour - START_HOUR
-        return ['{}_{}'.format(field, iteration) for field in HOURLY_FIELDNAMES]
+        iteration = datetime.now().hour - int(self.spider.start_hour)
+
+        # the last scrape is at 23:55, this case the iteration would be
+        # the same as the scrape of 23:00, so we need to increment it
+        if self.spider.last:
+            iteration += 1
+        return ['{}_{}'.format(field, iteration) for field in self.spider.hourly_fields]
