@@ -9,7 +9,7 @@ from takealot.items import TakealotItem
 
 API_DAILY_DEALS_URL = ('https://api.takealot.com/rest/v-1-5-2/productlines/search'
                        '?rows={rows}&start={offset}&backend=arj-fbye-zz-fla-fcenax'
-                       '&filter=Promotions:{id}&sort=Price%20Descending'
+                       '&filter=Promotions:{id}&sort=ReleaseDate%20Descending'
                        '&detail=mlisting&filter=Available:true')
 
 API_PRODUCT_URL = 'https://api.takealot.com/rest/v-1-5-2/productline/{id}'
