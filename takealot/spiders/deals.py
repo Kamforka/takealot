@@ -77,7 +77,7 @@ class DealsSpider(scrapy.Spider):
                                   callback=self.parse_item,
                                   meta={'item': item})
 
-        offset = int(body['params']['start'][0]) + self.rows
+        offset = int(jsonresponse['params']['start'][0]) + self.rows
         if offset < num_found:
             yield response.follow(API_DAILY_DEALS_URL.format(rows=self.rows,
                                                              offset=offset,
