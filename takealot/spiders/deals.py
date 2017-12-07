@@ -40,6 +40,10 @@ class DealsSpider(scrapy.Spider):
         """Constructor."""
         self.rows = 100
         self.daily_id = get_daily_id()
+        # last scrape of the day
+        self.last_scrape = kwargs.get('last', False)
+        # start hour of the daily scrape
+        self.start_hour = int(kwargs.get('start_hour', 7))
         self.start_urls = [
             API_DAILY_DEALS_URL.format(rows=self.rows,
                                        offset=0,
