@@ -89,9 +89,11 @@ class DealsSpider(scrapy.Spider):
         jsonresponse = self.get_jsonresponse(response)
         product = jsonresponse['response']
 
-        item = response.meta['item']
+        item = TakealotItem()
+        item['seller_name'] = response.meta['seller_name']
 
         item['id'] = product['id']
+        item['date'] = '{:%Y-%m-%d}'.format(dt.datetime.now())
         item['product_name'] = product['title']
         item['url_desktop'] = product['uri']
         item['url_mobile'] = MOBILE_ITEM_URL_TEMPLATE.format(id=product['id'])
