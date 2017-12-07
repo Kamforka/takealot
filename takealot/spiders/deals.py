@@ -17,6 +17,8 @@ API_PRODUCT_URL = 'https://api.takealot.com/rest/v-1-5-2/productline/{id}'
 
 MOBILE_ITEM_URL_TEMPLATE = 'https://m.takealot.com/#product?id={id}'
 
+SELLER_URL_TEMPLATE = 'https://www.takealot.com/seller-profile.php?sellers={id}'
+
 def get_daily_id():
     """Retrieve daily deal id from takealot api."""
     promo_url = 'https://api.takealot.com/rest/v-1-5-2/promotions'
