@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Takealot daily deals item scraper."""
+import datetime as dt
 import json
 import requests
 
