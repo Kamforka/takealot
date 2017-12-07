@@ -38,8 +38,6 @@ class DealsSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         """Constructor."""
-        self.rows = 100
-        self.daily_id = get_daily_id()
         # last scrape of the day
         self.last_scrape = kwargs.get('last', False)
         # start hour of the daily scrape
@@ -53,6 +51,9 @@ class DealsSpider(scrapy.Spider):
             'id', 'date', 'product_name', 'product_category', 'url_desktop', 'url_mobile',
             'seller_name', 'price_normal', 'price_offer', 'warehouses', 'stock_remaining',
         ]
+
+        self.rows = 199  # number of items to be retrieved (api allows max 199)
+        self.daily_id = get_daily_id()  # promo id of the actual daily deal
         self.start_urls = [
             API_DAILY_DEALS_URL.format(rows=self.rows,
                                        offset=0,
