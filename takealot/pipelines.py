@@ -10,30 +10,34 @@ import os
 from datetime import datetime
 
 # csv file name template string
+DAILY_DEALS_CSV_PATH_TEMPLATE = '{:%Y-%m-%d}_deals.csv'
 
 class DailyDealsPipeline(object):
+    """Pipe daily deals items to a specific CSV file."""
     def __init__(self):
         """Daily Deal Pipeline constructor."""
         self.file = None
-        self.writer = None
         self.items = []
+        self.spider = None
+        self.writer = None
 
     def open_spider(self, spider):
         """Method to handle spider opening."""
-        csv_path = CSV_NAME_TEMPLATE.format(datetime.now())
+        self.spider = spider
+        csv_path = DAILY_DEALS_CSV_PATH_TEMPLATE.format(datetime.now())
 
-        # self.items = []
         if os.path.exists(csv_path):
             # when a file already exists with the generated name
-            # it means that an hourly scraping is going on
+            # it means that an hourly scrapie is going on
             # so read in the whole csv and extend its headers
             with open(csv_path, 'r') as old_file:
-                reader = csv.DictReader(old_file)
-                old_items = (item for item in reader)
-                headers = reader.fieldnames + self.create_hourly_fieldnames()
+                old_items = csv.DictReader(old_file)
+                headers = old_items.fieldnames + self.create_ext_hourly_fieldnames()
                 self.items = self.extend_item_fields(old_items)
         else:
-            headers = FEED_EXPORT_FIELDS
+            # if it doesn't exist then it is probably the first scrape of the day
+            # so initialize the first csv with the original fields of the item
+            headers = spider.export_fields
 
         self.file = open(csv_path, 'w')
         self.writer = csv.DictWriter(self.file, headers)
@@ -49,28 +53,29 @@ class DailyDealsPipeline(object):
     def process_item(self, item, spider):
         """Method to handle item processing."""
         if self.items:
-            hourly_fieldnames = self.create_hourly_fieldnames()
             # hourly scrape
+            extended_hourly_fieldnames = self.create_ext_hourly_fieldnames()
             for new_item in self.items:
                 if new_item['id'] == item['id']:
                     # update item
-                    for (f1, f2) in zip(hourly_fieldnames, HOURLY_FIELDNAMES):
-                        new_item[f1] = item[f2]
+                    for (ext_field, orig_field) in zip(extended_hourly_fieldnames,
+                                                       spider.hourly_fields):
+                        new_item[ext_field] = item[orig_field]
 
         else:
             # initial scrape
             self.writer.writerow(item)
         return item
 
-    def extend_item_fields(self, old_items):
+    def extend_item_fields(self, items):
         """Extend items with new fields for the hourly scrape."""
         hourly_fields = self.create_hourly_fields()
-        new_items = [dict(old_item, **hourly_fields) for old_item in old_items]
-        return new_items
+        extended_items = [dict(item, **hourly_fields) for item in items]
+        return extended_items
 
     def create_hourly_fields(self):
         """Create empty fields for the hourly data."""
-        fieldnames = self.create_hourly_fieldnames()
+        fieldnames = self.create_ext_hourly_fieldnames()
         return {fieldname: None for fieldname in fieldnames}
 
     def create_ext_hourly_fieldnames(self):
