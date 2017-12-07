@@ -65,9 +65,9 @@ class DealsSpider(scrapy.Spider):
 
     def parse(self, response):
         """Parse daily deal product."""
-        body = self.get_response_body(response)
-        num_found = body['results']['num_found']
-        products = body['results']['productlines']
+        jsonresponse = self.get_jsonresponse(response)
+        num_found = jsonresponse['results']['num_found']
+        products = jsonresponse['results']['productlines']
 
         for product in products:
             item = TakealotItem()
@@ -85,8 +85,8 @@ class DealsSpider(scrapy.Spider):
 
     def parse_item(self, response):
         """Parse additional properties from product page."""
-        body = self.get_response_body(response)
-        product = body['response']
+        jsonresponse = self.get_jsonresponse(response)
+        product = jsonresponse['response']
 
         item = response.meta['item']
 
@@ -105,6 +105,6 @@ class DealsSpider(scrapy.Spider):
         yield item
 
     @staticmethod
-    def get_response_body(response, encoding='utf-8'):
+    def get_jsonresponse(response, encoding='utf-8'):
         """Retrieve body dictionary from `Response` object."""
         return json.loads(response.body.decode(encoding))
