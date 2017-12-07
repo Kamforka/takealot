@@ -9,16 +9,7 @@ import csv
 import os
 from datetime import datetime
 
-from takealot.settings import FEED_EXPORT_FIELDS
-
 # csv file name template string
-CSV_NAME_TEMPLATE = '{:%Y-%m-%d}_deals.csv'
-
-# hour of first scrape
-START_HOUR = 9 # 09:00
-
-# data fields for hourly scraping
-HOURLY_FIELDNAMES = ['price_offer', 'stock_remaining', 'warehouses']
 
 class DailyDealsPipeline(object):
     def __init__(self):
