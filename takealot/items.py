@@ -11,6 +11,7 @@ class TakealotItem(scrapy.Item):
     """Takealot item definition."""
     # define the fields for your item here like:
     id = scrapy.Field()
+    date = scrapy.Field()
     product_name = scrapy.Field()
     product_category = scrapy.Field()
     url_desktop = scrapy.Field()
