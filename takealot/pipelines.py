@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 
 # csv file name template string
-DAILY_DEALS_CSV_PATH_TEMPLATE = '{:%Y-%m-%d}_deals.csv'
+DAILY_DEALS_CSV_PATH_TEMPLATE = '/home/antalszabolcs01/{:%Y-%m-%d}_deals.csv'
 
 class DailyDealsPipeline(object):
     """Pipe daily deals items to a specific CSV file."""
@@ -84,6 +84,6 @@ class DailyDealsPipeline(object):
 
         # the last scrape is at 23:55, this case the iteration would be
         # the same as the scrape of 23:00, so we need to increment it
-        if self.spider.last:
+        if self.spider.last_scrape:
             iteration += 1
         return ['{}_{}'.format(field, iteration) for field in self.spider.hourly_fields]
