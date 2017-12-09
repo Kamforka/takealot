@@ -52,7 +52,8 @@ class DealsSpider(scrapy.Spider):
         # fields to be exported
         self.export_fields = [
             'id', 'date', 'product_name', 'product_category', 'url_desktop', 'url_mobile',
-            'seller_name', 'seller_url', 'price_normal', 'price_offer', 'warehouses', 'stock_remaining',
+            'seller_name', 'seller_url', 'price_normal', 'price_offer', 'warehouses',
+            'stock_remaining',
         ]
 
         self.rows = 199  # number of items to be retrieved (api allows max 199)
