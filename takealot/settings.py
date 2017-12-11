@@ -1,29 +1,14 @@
 # -*- coding: utf-8 -*-
-
-# Scrapy settings for takealot project
-#
-# For simplicity, this file contains only settings considered important or
-# commonly used. You can find more settings consulting the documentation:
-#
-#     http://doc.scrapy.org/en/latest/topics/settings.html
-#     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-#     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+"""Scrapy settings for takealot project."""
 
 BOT_NAME = 'takealot'
 
 SPIDER_MODULES = ['takealot.spiders']
 NEWSPIDER_MODULE = 'takealot.spiders'
 
-SPLASH_URL = 'http://localhost:8050/'
-
 LOG_LEVEL = 'INFO'
 
-FEED_EXPORT_FIELDS = [
-    'id', 'product_name', 'product_category', 'url_desktop', 'url_mobile',
-    'seller_name', 'price_normal', 'price_offer', 'stock_remaining', 'warehouses',
-]
-# Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'takealot (+http://www.yourdomain.com)'
+# Bot identification
 USER_AGENT = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5)'
               'AppleWebKit/537.36 (KHTML, like Gecko)'
               'Chrome/55.0.2883.95 Safari/537.36')
@@ -56,17 +41,17 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
-SPIDER_MIDDLEWARES = {
-    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
-}
+# SPIDER_MIDDLEWARES = {
+#     'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+# }
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES = {
-    'scrapy_splash.SplashCookiesMiddleware': 723,
-    'scrapy_splash.SplashMiddleware': 725,
-    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
-}
+# DOWNLOADER_MIDDLEWARES = {
+#     'scrapy_splash.SplashCookiesMiddleware': 723,
+#     'scrapy_splash.SplashMiddleware': 725,
+#     'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+# }
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
@@ -99,5 +84,5 @@ DOWNLOADER_MIDDLEWARES = {
 #HTTPCACHE_EXPIRATION_SECS = 0
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
-DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
-HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+# DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+# HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
