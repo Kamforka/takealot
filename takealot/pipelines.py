@@ -9,6 +9,20 @@ import csv
 import os
 from datetime import datetime
 
+from takealot.spiders.deals import DealsSpider
+from takealot.spiders.sunglasses import SunglassSpider
+
+
+class DefaultValuePipeline(object):
+    """Default value pipeline."""
+
+    def process_item(self, item, spider):
+        """Add default values to item fields."""
+        item.setdefault('date', '{:%Y-%m-%d}'.format(datetime.now()))
+
+        return item
+
+
 # csv file name template string
 DAILY_DEALS_CSV_PATH_TEMPLATE = '/home/antalszabolcs01/{:%Y-%m-%d}_deals.csv'
 
