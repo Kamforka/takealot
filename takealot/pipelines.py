@@ -41,10 +41,10 @@ class DailyDealsPipeline(object):
         hourly_fieldnames = crawler.settings.get('hourly_fieldnames', '').split(',')
         export_fields = spider.custom_settings['FEED_EXPORT_FIELDS']
 
-        for fieldname in hourly_fieldnames:
-            if not fieldname in export_fields:
-                raise ValueError('Hourly fieldname "{}" not found in the export fields of {}.'
-                                 .format(fieldname, spider.__name__))
+        # for fieldname in hourly_fieldname_string.split(','):
+        #     if not fieldname in export_fields:
+        #         raise ValueError('Hourly fieldname "{}" not found in the export fields of {}.'
+        #                          .format(fieldname, spider.__class__.__name__))
         return cls()
 
     def __init__(self):
