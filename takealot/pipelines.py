@@ -9,9 +9,6 @@ import csv
 import os
 from datetime import datetime
 
-from takealot.spiders.deals import DealsSpider
-from takealot.spiders.sunglasses import SunglassSpider
-
 
 class DefaultValuePipeline(object):
     """Default value pipeline."""
@@ -19,52 +16,62 @@ class DefaultValuePipeline(object):
     def process_item(self, item, spider):
         """Add default values to item fields."""
         item.setdefault('date', '{:%Y-%m-%d}'.format(datetime.now()))
+        item.setdefault('seller_name', None)
 
         return item
 
 
 # csv file name template string
-DAILY_DEALS_CSV_PATH_TEMPLATE = '{:%Y-%m-%d}_deals.csv'
-
-# hourly_fieldnames, last_scrape, export_path, export_fields(custom_settings),
-# start_hour
-
+CSV_LOG_NAME = '{date:%Y-%m-%d}_{name}.csv'
 
 class DailyDealsPipeline(object):
     """Pipe daily deals items to a specific CSV file."""
     @classmethod
     def from_crawler(cls, crawler):
+        """Instantiate pipeline from crawler."""
         spider = crawler.spider
         export_path = crawler.settings.get('export_path', '')
-        last_scrape = crawler.settings.get('last', False)
+        last_scrape = bool(crawler.settings.get('last', False))
         start_hour = int(crawler.settings.get('start_hour', 7))
-        hourly_fieldnames = crawler.settings.get('hourly_fieldnames', '').split(',')
-        export_fields = spider.custom_settings['FEED_EXPORT_FIELDS']
+        export_fields = spider.custom_settings.get('FEED_EXPORT_FIELDS')
+        if export_fields is None:
+            raise ValueError('"{}" spider has no `FEED_EXPORT_FIELDS` in its settings!'
+                             .format(spider.__class__.__name__))
 
-        # for fieldname in hourly_fieldname_string.split(','):
-        #     if not fieldname in export_fields:
-        #         raise ValueError('Hourly fieldname "{}" not found in the export fields of {}.'
-        #                          .format(fieldname, spider.__class__.__name__))
-        return cls()
+        hourly_fieldnames = cls.parse_hourly_fieldnames(crawler.settings.get('hourly_fields'))
 
-    def __init__(self):
+        return cls(export_path=export_path, start_hour=start_hour, last_scrape=last_scrape,
+                   hourly_fieldnames=hourly_fieldnames, export_fields=export_fields,)
+
+    def __init__(self, start_hour=7, last_scrape=False, export_path='', **kwargs):
         """Daily Deal Pipeline constructor."""
+        self.start_hour = start_hour
+        self.last_scrape = last_scrape
+        self.export_path = export_path
+        self.export_fields = kwargs.get('export_fields')
+        self.hourly_fieldnames = kwargs.get('hourly_fieldnames')
+
+        for fieldname in self.hourly_fieldnames:
+            if fieldname not in self.export_fields:
+                raise ValueError('Hourly fieldname "{}" not found in export fields.'
+                                 .format(fieldname))
+
+
         self.file = None  # csv export file
         self.items = []  # list of export items
-        self.spider = None  # spider that utilizing the pipeline
         self.writer = None  # csv dictwriter
         self.hourly_scrape = False
-        self.last_scrape = False
-        self.export_path = ''
+        self.spider = None
+
 
     def open_spider(self, spider):
         """Method to handle spider opening."""
         self.spider = spider
-        csv_path = DAILY_DEALS_CSV_PATH_TEMPLATE.format(datetime.now())
+        csv_path = self.create_csv_path()
 
         if os.path.exists(csv_path):
             # when a file already exists with the generated name
-            # it means that an hourly scrapie is going on
+            # it means that an hourly scrape is going on
             # so read in the whole csv and extend its headers
             self.hourly_scrape = True
             with open(csv_path, 'r') as old_file:
@@ -74,7 +81,7 @@ class DailyDealsPipeline(object):
         else:
             # if it doesn't exist then it is probably the first scrape of the day
             # so initialize the first csv with the original fields of the item
-            headers = spider.export_fields
+            headers = self.export_fields
 
         self.file = open(csv_path, 'w')
         self.writer = csv.DictWriter(self.file, headers)
@@ -96,19 +103,27 @@ class DailyDealsPipeline(object):
                 if new_item['id'] == item['id']:
                     # update item
                     for (ext_field, orig_field) in zip(extended_hourly_fieldnames,
-                                                       spider.hourly_fields):
+                                                       self.hourly_fieldnames):
                         new_item[ext_field] = item[orig_field]
 
         else:
             # initial scrape
             self.items.append(item)
-            # self.writer.writerow(item)
         return item
+
+    @staticmethod
+    def parse_hourly_fieldnames(hourly_fieldnames):
+        """Parse hourly_fieldnames argument."""
+        if hourly_fieldnames is None:
+            return []
+
+        return hourly_fieldnames.split(',')
 
     def create_csv_path(self):
         """Create CSV path string."""
         return os.path.join(self.export_path,
-                            DAILY_DEALS_CSV_PATH_TEMPLATE.format(datetime.now()))
+                            CSV_LOG_NAME.format(date=datetime.now(),
+                                                name=self.spider.name))
 
     def extend_item_fields(self, items):
         """Extend items with new fields for the hourly scrape."""
@@ -123,10 +138,19 @@ class DailyDealsPipeline(object):
 
     def create_ext_hourly_fieldnames(self):
         """Create list of fieldnames for the hourly data."""
-        iteration = datetime.now().hour - int(self.spider.start_hour)
+        iteration = datetime.now().hour - self.start_hour
 
         # the last scrape is at 23:55, this case the iteration would be
         # the same as the scrape of 23:00, so we need to increment it
-        if self.spider.last_scrape:
+        if self.last_scrape:
             iteration += 1
-        return ['{}_{}'.format(field, iteration) for field in self.spider.hourly_fields]
+        return ['{}_{}'.format(field, iteration) for field in self.hourly_fieldnames]
+
+    def get_hourly_count(self, header):
+        """Retrieve the next count postfix for the hourly fieldnames."""
+        for fieldname in header:
+            if self.hourly_fieldnames[0] in fieldname:
+                try:
+                    return int(fieldname.split('_')[-1]) + 1
+                except ValueError:
+                    return 1
