@@ -24,7 +24,11 @@ class DealsSpider(SpiderBase):
     name = 'deals'
     allowed_domains = ['api.takealot.com']
     custom_settings = {
-        'FEED_EXPORT_FIELDS': ['id', 'product_name'],
+        'FEED_EXPORT_FIELDS': [
+            'id', 'date', 'product_name', 'product_category', 'url_desktop', 'url_mobile',
+            'seller_name', 'seller_url', 'price_normal', 'price_offer', 'warehouses',
+            'stock_remaining',
+            ],
         'ITEM_PIPELINES': {
             'takealot.pipelines.DefaultValuePipeline': 300,
             'takealot.pipelines.DailyDealsPipeline': 301,
@@ -33,20 +37,6 @@ class DealsSpider(SpiderBase):
 
     def __init__(self, *args, **kwargs):
         """Constructor."""
-        # last scrape of the day
-        self.last_scrape = kwargs.get('last', False)
-        # start hour of the daily scrape
-        self.start_hour = int(kwargs.get('start_hour', 7))
-
-        # fields to be scraped during hourly scraping
-        self.hourly_fields = ['stock_remaining']
-
-        # fields to be exported
-        self.export_fields = [
-            'id', 'date', 'product_name', 'product_category', 'url_desktop', 'url_mobile',
-            'seller_name', 'seller_url', 'price_normal', 'price_offer', 'warehouses',
-            'stock_remaining',
-        ]
 
         self.rows = 199  # number of items to be retrieved (api allows max 199)
         self.daily_id = get_daily_id()  # promo id of the actual daily deal
