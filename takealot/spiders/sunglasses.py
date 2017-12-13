@@ -10,8 +10,14 @@ class SunglassSpider(SpiderBase):
     name = 'sunglasses'
     allowed_domains = ['api.takealot.com']
     custom_settings = {
+        'FEED_EXPORT_FIELDS': [
+            'id', 'date', 'product_name', 'product_category', 'url_desktop', 'url_mobile',
+            'seller_name', 'seller_url', 'price_normal', 'price_offer', 'warehouses',
+            'stock_remaining',
+            ],
         'ITEM_PIPELINES': {
             'takealot.pipelines.DefaultValuePipeline': 300,
+            'takealot.pipelines.DailyDealsPipeline': 301,
         }
     }
     sunglass_ids = [
