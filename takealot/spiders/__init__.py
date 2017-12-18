@@ -34,7 +34,10 @@ class SpiderBase(scrapy.Spider):
 
     def parse_item(self, response):
         """Parse a takealot item."""
+        yield self.load_item(response)
 
+    def load_item(self, response):
+        """Load product item from takealot api product response."""
         jsonresponse = self.get_jsonresponse(response)
         product = jsonresponse['response']
 
@@ -43,7 +46,9 @@ class SpiderBase(scrapy.Spider):
         for (field, path) in self.jmes_paths.items():
             loader.add_value(field, SelectJmes(path)(product))
 
-        yield loader.load_item()
+        return loader.load_item()
+
+
 
     @staticmethod
     def get_jsonresponse(response, encoding='utf-8'):
