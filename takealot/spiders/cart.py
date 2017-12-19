@@ -53,7 +53,8 @@ class CartSpider(SpiderBase):
     def start_requests(self):
         """Request dispatchers."""
         for url in self.start_urls:
-            yield SplashRequest(url, self.parse, endpoint='render.html')
+            yield SplashRequest(url, self.parse, endpoint='render.html',
+                                args={'wait': 0.75})
 
     def parse(self, response):
         """Parse the product page.
