@@ -135,8 +135,11 @@ class CartSpider(SpiderBase):
                                 meta=response.meta.copy())
         else:
             prod_id = response.xpath('//input[@name="idProduct"]/@value').extract_first()
-            yield FormRequest.from_response(response, formcss='form.add-form',
-                                            meta={'prod_id': prod_id})
+            try:
+                yield FormRequest.from_response(response, formcss='form.add-form',
+                                                meta={'prod_id': prod_id})
+            except ValueError:
+                self.logger.info("No product found at url: <{}>".format(response.url))
 
     def parse_cart(self, response):
         """Parse the cart page.
