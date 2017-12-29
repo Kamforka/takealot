@@ -15,7 +15,7 @@ def get_daily_id():
     promo_url = 'https://api.takealot.com/rest/v-1-5-2/promotions'
     response = requests.get(promo_url)
     for resp in response.json()['response']:
-        if resp['name'] == 'Daily Deal':
+        if 'daily deal' in resp['name'].lower():
             return resp['id']
 
 
