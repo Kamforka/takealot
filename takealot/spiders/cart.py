@@ -1,9 +1,10 @@
 
 # -*- coding: utf-8 -*-
 """Takealot sunglass item scraper."""
-import scrapy
+from urllib.parse import urlparse
 
-from scrapy_splash import SplashRequest, SplashFormRequest
+import scrapy
+from scrapy_splash import SplashFormRequest, SplashRequest
 
 from takealot.spiders import SpiderBase
 
@@ -32,8 +33,13 @@ end"""
 
 def get_item_urls(path):
     """Retrieve a list of item urls from a text file."""
+    def valid_url(url):
+        """Check whether a url string is valid or not."""
+        parser = urlparse(url)
+        return parser.scheme and parser.netloc and parser.path
+
     with open(path, 'r') as url_file:
-        urls = url_file.readlines()
+        urls = [url for url in url_file.read().splitlines() if valid_url(url)]
     return urls
 
 
