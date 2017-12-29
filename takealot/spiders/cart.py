@@ -3,10 +3,9 @@
 """Takealot sunglass item scraper."""
 import scrapy
 
-from scrapy.http import FormRequest
-from scrapy_splash import SplashRequest
+from scrapy_splash import SplashRequest, SplashFormRequest
 
-from takealot.spiders import API_PRODUCT_URL, SpiderBase
+from takealot.spiders import SpiderBase
 
 API_LOOKUP_URL = 'https://api.takealot.com/rest/v-1-5-2/productlines/lookup?idProduct={prod_id}'
 
