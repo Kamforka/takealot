@@ -7,6 +7,7 @@ from scrapy_splash import SplashRequest, SplashFormRequest
 
 from takealot.spiders import SpiderBase
 
+# api product lookup url template by product id
 API_LOOKUP_URL = 'https://api.takealot.com/rest/v-1-5-2/productlines/lookup?idProduct={prod_id}'
 
 # lua script to retrieve cookies from response
@@ -55,10 +56,11 @@ class CartSpider(SpiderBase):
     cart_url = 'https://www.takealot.com/cart'
 
     def start_requests(self):
-        """Request dispatchers."""
+        """Request dispatcher."""
         for url in self.start_urls:
-            yield SplashRequest(url, self.parse, endpoint='render.html',
-                                args={'wait': 0.75})
+            yield SplashRequest(url, self.parse, endpoint='execute',
+                                args={'wait': 0.75, 'lua_source': COOKIE_SCRIPT,},)
+
 
     def parse(self, response):
         """Parse the product page.
@@ -67,17 +69,31 @@ class CartSpider(SpiderBase):
         Then redirect to the cart page.
         """
         prod_id = response.meta.get('prod_id')
-        if prod_id:
-            yield SplashRequest(self.cart_url, self.parse_cart,
-                                endpoint='render.html', dont_filter=True,
-                                meta=response.meta.copy())
-        else:
+        cookies = response.data['cookies']
+        if prod_id is None:
+            # get product id
             prod_id = response.xpath('//input[@name="idProduct"]/@value').extract_first()
+
             try:
-                yield FormRequest.from_response(response, formcss='form.add-form',
-                                                meta={'prod_id': prod_id})
+                # if product is available, add it to cart
+                request = SplashFormRequest.from_response(response, formcss='form.add-form',
+                                                          callback=self.parse, endpoint='execute',
+                                                          cookies=cookies,
+                                                          args={'lua_source': COOKIE_SCRIPT,})
+                request.meta['prod_id'] = prod_id
+                yield request
+                self.logger.info("Prod id found <{0}>".format(prod_id))
             except ValueError:
+                # product no longer available, as the product id cannot be found on page
                 self.logger.info("No product found at url: <{}>".format(response.url))
+        else:
+            # product added to cart, redirect to the cart url
+            request = SplashRequest(self.cart_url, self.parse_cart, endpoint='execute',
+                                    cookies=cookies, dont_filter=True,
+                                    args={'wait': 0.75, 'lua_source': COOKIE_SCRIPT},)
+            request.meta['prod_id'] = prod_id
+            yield request
+            self.logger.info("Prod id <{0}> added to cart.".format(prod_id))
 
     def parse_cart(self, response):
         """Parse the cart page.
@@ -86,6 +102,7 @@ class CartSpider(SpiderBase):
         the updated quantity of the product stocks.
         Then scrape the updated value of the product.
         """
+        cookies = response.data['cookies']
         updated = response.meta.get('updated')
         prod_id = response.meta.get('prod_id')
 
@@ -95,18 +112,27 @@ class CartSpider(SpiderBase):
                 qty_key: '9999',
             }
 
-            update_meta = response.meta.copy()
-            update_meta['updated'] = True
 
-            yield FormRequest.from_response(response, formid='cart-form', formdata=data,
-                                            callback=self.parse_cart, meta=update_meta)
+            request = SplashFormRequest.from_response(response, formid='cart-form', formdata=data,
+                                                      callback=self.parse_cart, endpoint='execute',
+                                                      cookies=cookies, dont_filter=True,
+                                                      args={'lua_source': COOKIE_SCRIPT,})
+            request.meta['prod_id'] = prod_id
+            request.meta['updated'] = True
+
+            yield request
+            self.logger.info("Prod id {0} update form sent.".format(prod_id))
         else:
             stock_remaining = response.xpath('//input[@id="{}"]/@value'
                                              .format(prod_id)).extract_first()
 
-            yield scrapy.Request(API_LOOKUP_URL.format(prod_id=prod_id),
-                                 callback=self.parse_item,
-                                 meta={'stock_remaining': stock_remaining})
+            self.logger.info("Prod id {0} updated quantity scraped.".format(prod_id))
+
+            request = scrapy.Request(API_LOOKUP_URL.format(prod_id=prod_id),
+                                     callback=self.parse_item)
+            request.meta['stock_remaining'] = stock_remaining
+
+            yield request
 
 
     def parse_item(self, response):
