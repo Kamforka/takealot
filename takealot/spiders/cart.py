@@ -9,6 +9,25 @@ from takealot.spiders import SpiderBase
 
 API_LOOKUP_URL = 'https://api.takealot.com/rest/v-1-5-2/productlines/lookup?idProduct={prod_id}'
 
+# lua script to retrieve cookies from response
+COOKIE_SCRIPT = """function main(splash)
+  splash:init_cookies(splash.args.cookies)
+  assert(splash:go{
+    splash.args.url,
+    headers=splash.args.headers,
+    http_method=splash.args.http_method,
+    body=splash.args.body,
+    })
+  assert(splash:wait(0.5))
+
+  local entries = splash:history()
+  local last_response = entries[#entries].response
+  return {
+    url = splash:url(),
+    cookies = splash:get_cookies(),
+    html = splash:html(),
+  }
+end"""
 class CartSpider(SpiderBase):
     """Test"""
     name = 'cart'
