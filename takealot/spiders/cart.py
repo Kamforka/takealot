@@ -28,6 +28,14 @@ COOKIE_SCRIPT = """function main(splash)
     html = splash:html(),
   }
 end"""
+
+def get_item_urls(path):
+    """Retrieve a list of item urls from a text file."""
+    with open(path, 'r') as url_file:
+        urls = url_file.readlines()
+    return urls
+
+
 class CartSpider(SpiderBase):
     """Test"""
     name = 'cart'
